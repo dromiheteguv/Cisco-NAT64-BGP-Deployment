@@ -13,7 +13,7 @@ graph LR
         A[Client IPv6] --- B[Router Client BGP]
     end
 
-    B <--- "Sesiune BGP (Anunț 64:ff9b::/96)" ---> C
+    B --- "Sesiune BGP (Anunț 64:ff9b::/96)" --- C
 
     subgraph "Router NAT64 (Nodul Tău)"
         C[Interfață IPv6: nat64 enable]
