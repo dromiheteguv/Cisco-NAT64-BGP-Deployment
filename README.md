@@ -27,4 +27,4 @@ graph TD
         F --- G((Internet IPv4))
     end
 
-"Contributions are welcome! If you have optimizations for security, performance, or other platforms, feel free to open an Issue or a Pull Request."
+Contributions are welcome! If you have optimizations for security, performance, or other platforms, feel free to open an Issue or a Pull Request.
