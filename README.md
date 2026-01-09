@@ -14,7 +14,7 @@ graph TD
         A[Client IPv6] --- B[Router Client BGP]
     end
 
-    B -- "Sesiune BGP: Anunt 64ff9b::/96" --- C
+    B -- "Sesiune BGP: Anunt 64ff9b" --- C
 
     subgraph Node [Router NAT64 Nodul Tau]
         C["Interfata IPv6: nat64 enable"]
@@ -26,12 +26,3 @@ graph TD
         E --- F[Gateway ISP / NAT44]
         F --- G((Internet IPv4))
     end
-
-    
-    
-Important: Configurația spre Internet (WAN)
-Pentru ca NAT64 să funcționeze, interfața spre internet TREBUIE să aibă nat64 enable, chiar dacă este o interfață pur IPv4. Fără această linie, routerul nu va ști să trimită pachetele traduse către Gateway-ul ISP-ului.
-Specificatii Tehnice:
-
-    Pool IPv4: 100.64.0.0/16 (Esențial pentru a evita coliziunile și a asigura mii de sesiuni).
-    DNS64: Folosiți 2001:4860:4860::64 pentru a permite clienților IPv6 să "vadă" destinațiile IPv4.
