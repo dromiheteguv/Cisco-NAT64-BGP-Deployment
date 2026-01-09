@@ -1,0 +1,63 @@
+! ==============================================================================
+! CISCO IOS-XE STATEFUL NAT64 CONFIGURATION WITH BGP ADVERTISEMENT
+! Optimized for IPv6-only Autonomous Systems (AS)
+! ==============================================================================
+
+! --- Enable IPv6 Unicast Routing ---
+ipv6 unicast-routing
+
+! --- Define IPv4 Address Pool (100.64.0.0/16 - Recommended) ---
+! Using a /16 pool prevents session exhaustion in high-traffic IPv6 environments.
+nat64 v4 pool NAT64-POOL 100.64.0.0 100.64.255.255
+
+! --- Define NAT64 Stateful Prefix (RFC6052) ---
+nat64 prefix stateful 64:ff9b::/96 
+
+! --- Access Control List (ACL) for NAT64 ---
+! Only authorized IPv6 prefixes are allowed to use the NAT64 gateway.
+ipv6 access-list NAT64-ACL-FILTER
+ permit ipv6 2001:db8::/32 any
+ ! Add your specific RIPE/allocated IPv6 prefixes here
+exit
+
+! --- Apply Translation Rule ---
+! Maps the authorized IPv6 list to the IPv4 NAT pool.
+nat64 v6v4 list NAT64-ACL-FILTER pool NAT64-POOL
+
+! --- Interface Configuration ---
+! WAN Interface: Facing the IPv4 Internet / Upstream ISP.
+! Note: 'nat64 enable' is mandatory even on IPv4-only interfaces.
+interface GigabitEthernet0/0/0
+ description WAN_OUTBOUND_TO_IPV4_INTERNET
+ ip address 192.168.0.2 255.255.255.0
+ nat64 enable
+!
+! LAN/Peering Interface: Facing the internal IPv6-only network.
+interface GigabitEthernet0/1/0
+ description PEERING_INBOUND_IPV6_ONLY
+ ipv6 address FD64:F::1/64
+ nat64 enable
+
+! --- IPv4 Default Routing and DNS64 Resolution (Google) ---
+! Ensures the router knows where to send translated IPv4 packets.
+ip route 0.0.0.0 0.0.0.0 192.168.0.1
+! Google Public DNS64 allows IPv6 clients to resolve IPv4-only domains.
+ipv6 name-server 2001:4860:4860::64 2001:4860:4860::6464
+
+! --- BGP Configuration (Service Advertisement) ---
+! Announces the NAT64 prefix to downstream BGP neighbors.
+router bgp 64644
+ bgp router-id 100.64.0.0
+ no bgp default ipv4-unicast
+ neighbor FD64:F::2 remote-as 59922
+ !
+ address-family ipv6
+  neighbor FD64:F::2 activate
+  ! Advertsing the NAT64 prefix so neighbors know the path to IPv4 destinations.
+  network 64:ff9b::/96
+ exit-address-family
+
+! --- Operational Commands for Verification ---
+! Use 'show nat64 sessions' to monitor active translations.
+! Use 'show nat64 statistics' to check translation counters and errors.
+
