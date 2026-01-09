@@ -26,3 +26,5 @@ graph TD
         E --- F[Gateway ISP / NAT44]
         F --- G((Internet IPv4))
     end
+
+"Contributions are welcome! If you have optimizations for security, performance, or other platforms, feel free to open an Issue or a Pull Request."
